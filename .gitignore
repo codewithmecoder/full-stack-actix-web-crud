@@ -19,3 +19,18 @@ target
 #  and can be added to the global gitignore or merged into this file.  For a more nuclear
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
 #.idea/
+
+# Local env files
+.env
+.env.*
+# Local env files for Docker
+docker/.env
+docker/.env.*
+# Local env files for Kubernetes
+k8s/.env
+k8s/.env.*
+
+# appsettings.json
+# Local appsettings files
+appsettings.json
+appsettings.*.json

@@ -1,0 +1,3 @@
+tab_spaces = 2  # Number of spaces for indentation
+# use_tab = false # Use spaces instead of tabs
+max_width = 100  # Optional: Set max line width
