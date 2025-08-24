@@ -1,11 +1,12 @@
 mod app_settings;
 mod app_state;
+mod commons;
 mod features;
 mod repos;
 
 use actix_web::{App, HttpServer, Responder, web};
 
-use crate::app_state::AppState;
+use crate::{app_state::AppState, features::auth::auth_handler};
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
@@ -35,6 +36,7 @@ async fn main() -> std::io::Result<()> {
       .app_data(state.clone())
       // Public routes here
       .route("/", web::get().to(index))
+      .service(web::scope("/api/v1").service(web::scope("/auth").service(auth_handler::register)))
   })
   .bind((host.clone(), port))?;
   // Log the running address

@@ -8,7 +8,7 @@ pub struct ServerSetting {
 
 #[derive(Deserialize, Clone)]
 pub struct DatabaseSetting {
-  pub url: String,
+  pub conn_str: String,
   pub pool_size: u32,
 }
 
