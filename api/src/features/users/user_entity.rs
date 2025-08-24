@@ -1,5 +1,4 @@
-use anyhow::Result;
-use chrono::{DateTime, Utc};
+use chrono::{DateTime, NaiveDateTime, Utc};
 use serde::{Deserialize, Serialize};
 use tiberius::Row;
 
@@ -15,31 +14,47 @@ pub struct User {
 }
 
 impl User {
-  pub fn from_row(row: &Row) -> Result<Self> {
-    Ok(Self {
-      id: row.try_get::<i32, &str>("id")?.unwrap_or_default(), // fallback if null
+  pub fn from_row(row: &Row) -> Self {
+    let naive_created_at: NaiveDateTime = row
+      .try_get::<NaiveDateTime, &str>("created_at")
+      .expect("Failed to get created_at")
+      .unwrap_or_default();
+    let created_at: DateTime<Utc> =
+      DateTime::<Utc>::from_naive_utc_and_offset(naive_created_at, Utc);
+
+    let naive_updated_at: NaiveDateTime = row
+      .try_get::<NaiveDateTime, &str>("updated_at")
+      .expect("Failed to get updated_at")
+      .unwrap_or_default();
+    let updated_at: DateTime<Utc> =
+      DateTime::<Utc>::from_naive_utc_and_offset(naive_updated_at, Utc);
+    Self {
+      id: row
+        .try_get::<i32, &str>("id")
+        .expect("Failed to get id")
+        .unwrap_or_default(), // fallback if null
       name: row
-        .try_get::<&str, &str>("name")?
+        .try_get::<&str, &str>("name")
+        .expect("Failed to get name")
         .unwrap_or_default()
         .to_string(),
       email: row
-        .try_get::<&str, &str>("email")?
+        .try_get::<&str, &str>("email")
+        .expect("Failed to get email")
         .unwrap_or_default()
         .to_string(),
       user_name: row
-        .try_get::<&str, &str>("user_name")?
+        .try_get::<&str, &str>("user_name")
+        .expect("Failed to get user_name")
         .unwrap_or_default()
         .to_string(),
       password: row
-        .try_get::<&str, &str>("password")?
+        .try_get::<&str, &str>("password")
+        .expect("Failed to get password")
         .unwrap_or_default()
         .to_string(),
-      created_at: row
-        .try_get::<DateTime<Utc>, &str>("created_at")?
-        .unwrap_or_else(Utc::now),
-      updated_at: row
-        .try_get::<DateTime<Utc>, &str>("updated_at")?
-        .unwrap_or_else(Utc::now),
-    })
+      created_at: created_at,
+      updated_at: updated_at,
+    }
   }
 }

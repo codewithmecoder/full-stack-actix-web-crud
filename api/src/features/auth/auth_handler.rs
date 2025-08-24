@@ -14,12 +14,12 @@ pub async fn register(
   user: web::Json<UserRegisterReqDto>,
   data: web::Data<AppState>,
 ) -> impl Responder {
-  let mut repo = UserRepo { app_state: &data };
+  let mut repo = UserRepo::new(&data);
   if let Err(e) = repo.create(&user).await {
     return HttpResponse::BadRequest().json(web::Json(BaseResDto::<UserDto> {
       data: None,
       status: Status {
-        message: format!("Failed to register user: {}", e),
+        message: format!("{}", e),
         code: StatusCodeConst::ERROR.to_string(),
       },
     }));

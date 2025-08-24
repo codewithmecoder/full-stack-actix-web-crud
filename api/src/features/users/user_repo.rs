@@ -1,7 +1,10 @@
 use crate::{
   app_state::AppState,
   features::users::{user_entity::User, user_req_dto::UserRegisterReqDto},
-  repos::sql_repo::{CommandType, DbPool, SqlRepo},
+  repos::{
+    sql_pool_manager::PooledClient,
+    sql_repo::{CommandType, SqlRepo},
+  },
 };
 
 use anyhow::Result;
@@ -16,18 +19,28 @@ impl<'a> UserRepo<'a> {
     Self { app_state }
   }
 
-  async fn create_connection(&self) -> Result<DbPool> {
-    SqlRepo::create_connection(
-      &self.app_state.config.database.conn_str,
-      self.app_state.config.database.pool_size,
-    )
-    .await
+  async fn get_client(&self) -> PooledClient {
+    match self
+      .app_state
+      .db_manager
+      .get_client(&self.app_state.config.database.sql_server.pool_name)
+      .await
+    {
+      Ok(client) => client,
+      Err(e) => panic!("Failed to get DB client: {}", e),
+    }
   }
 
   pub async fn create(&mut self, user: &UserRegisterReqDto) -> Result<()> {
+    let user_existed = self.get_by_username(&user.user_name).await?;
+
+    if user_existed.is_some() {
+      return Err(anyhow::anyhow!("Username already exists"));
+    }
+
     let params: Vec<&dyn ToSql> = vec![&user.name, &user.user_name, &user.email, &user.password];
 
-    let mut client_pool = self.create_connection().await?.lock().await.pop().unwrap();
+    let mut client_pool = self.get_client().await;
 
     SqlRepo::execute_command_none_query(
       &mut client_pool,
@@ -40,7 +53,7 @@ impl<'a> UserRepo<'a> {
   }
 
   pub async fn get_by_id(&mut self, id: i32) -> Result<Option<User>> {
-    let mut client_pool = self.create_connection().await?.lock().await.pop().unwrap();
+    let mut client_pool = self.get_client().await;
 
     let user = SqlRepo::execute_command_single_query(
       &mut client_pool,
@@ -50,6 +63,34 @@ impl<'a> UserRepo<'a> {
       |row| User::from_row(row),
     )
     .await?;
-    Ok(user.transpose()?)
+    Ok(user)
+  }
+
+  pub async fn get_by_username(&mut self, username: &str) -> Result<Option<User>> {
+    let mut client_pool = self.get_client().await;
+
+    let user = SqlRepo::execute_command_single_query(
+      &mut client_pool,
+      "[dbo].[select_user_by_user_name]",
+      &[&username],
+      CommandType::StoreProcedure,
+      |row| User::from_row(row),
+    )
+    .await?;
+    Ok(user)
+  }
+
+  pub async fn get_users(&mut self) -> Result<Vec<User>> {
+    let mut client_pool = self.get_client().await;
+
+    let users = SqlRepo::execute_command_query(
+      &mut client_pool,
+      "[dbo].[select_users]",
+      &[],
+      CommandType::StoreProcedure,
+      |row| User::from_row(row),
+    )
+    .await?;
+    Ok(users)
   }
 }

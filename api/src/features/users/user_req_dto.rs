@@ -7,3 +7,8 @@ pub struct UserRegisterReqDto {
   pub email: String,
   pub name: String,
 }
+
+#[derive(Deserialize, Serialize, Debug)]
+pub struct GetUserByIdReqDto {
+  pub id: i32,
+}

@@ -4,9 +4,12 @@ mod commons;
 mod features;
 mod repos;
 
-use actix_web::{App, HttpServer, Responder, web};
+use actix_web::{App, HttpServer, web};
 
-use crate::{app_state::AppState, features::auth::auth_handler};
+use crate::{
+  app_state::AppState,
+  features::{auth::auth_handler, users::user_handler},
+};
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
@@ -14,7 +17,7 @@ async fn main() -> std::io::Result<()> {
     openssl_probe::init_openssl_env_vars();
   }
   // Load AppState from JSON file
-  let state = match AppState::from_file("appsettings.json").await {
+  let state = match AppState::load_setting("appsettings.json").await {
     Ok(state) => web::Data::new(state),
     Err(e) => {
       eprintln!("Failed to initialize app state: {}", e);
@@ -35,8 +38,15 @@ async fn main() -> std::io::Result<()> {
     App::new()
       .app_data(state.clone())
       // Public routes here
-      .route("/", web::get().to(index))
-      .service(web::scope("/api/v1").service(web::scope("/auth").service(auth_handler::register)))
+      .service(
+        web::scope("/api/v1")
+          .service(web::scope("/auth").service(auth_handler::register))
+          .service(
+            web::scope("/users")
+              .service(user_handler::get_users)
+              .service(user_handler::get_user_by_id),
+          ),
+      )
   })
   .bind((host.clone(), port))?;
   // Log the running address
@@ -44,10 +54,4 @@ async fn main() -> std::io::Result<()> {
 
   // Run the server (blocking)
   server.run().await
-}
-async fn index(data: web::Data<AppState>) -> impl Responder {
-  format!(
-    "Server running on {}:{} with DB pool size {}",
-    data.config.server.host, data.config.server.port, data.config.database.pool_size
-  )
 }

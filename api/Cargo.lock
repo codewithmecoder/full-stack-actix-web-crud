@@ -312,6 +312,7 @@ dependencies = [
  "indexmap",
  "jsonwebtoken",
  "lazy_static",
+ "log",
  "openssl-probe",
  "serde",
  "serde_json",

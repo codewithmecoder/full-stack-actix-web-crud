@@ -8,8 +8,14 @@ pub struct ServerSetting {
 
 #[derive(Deserialize, Clone)]
 pub struct DatabaseSetting {
+  pub sql_server: DatabaseConnectionInfo,
+}
+
+#[derive(Deserialize, Clone)]
+pub struct DatabaseConnectionInfo {
   pub conn_str: String,
   pub pool_size: u32,
+  pub pool_name: String,
 }
 
 #[derive(Deserialize, Clone)]
