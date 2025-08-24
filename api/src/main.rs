@@ -1,6 +1,7 @@
 mod app_settings;
 mod app_state;
 mod commons;
+mod dto;
 mod features;
 mod repos;
 

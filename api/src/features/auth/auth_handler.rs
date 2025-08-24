@@ -3,10 +3,8 @@ use actix_web::{HttpResponse, Responder, post, web};
 use crate::{
   app_state::AppState,
   commons::status_code_const::StatusCodeConst,
-  features::{
-    dto::base_res_dto::{BaseResDto, Status},
-    users::{user_repo::UserRepo, user_req_dto::UserRegisterReqDto, user_res_dto::UserDto},
-  },
+  dto::base_res_dto::{BaseResDto, Status},
+  features::users::{user_repo::UserRepo, user_req_dto::UserRegisterReqDto, user_res_dto::UserDto},
 };
 
 #[post("/register")]
