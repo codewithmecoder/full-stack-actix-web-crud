@@ -5,6 +5,7 @@ use crate::{
     sql_pool_manager::PooledClient,
     sql_repo::{CommandType, SqlRepo},
   },
+  utils::password_hashing::PasswordHashing,
 };
 
 use anyhow::Result;
@@ -38,7 +39,11 @@ impl<'a> UserRepo<'a> {
       return Err(anyhow::anyhow!("Username already exists"));
     }
 
-    let params: Vec<&dyn ToSql> = vec![&user.name, &user.user_name, &user.email, &user.password];
+    // Hash the password before storing
+    let hashed_password = PasswordHashing::hash_password(&user.password)
+      .map_err(|e| anyhow::anyhow!("Failed to hash password: {}", e))?;
+
+    let params: Vec<&dyn ToSql> = vec![&user.name, &user.user_name, &user.email, &hashed_password];
 
     let mut client_pool = self.get_client().await;
 

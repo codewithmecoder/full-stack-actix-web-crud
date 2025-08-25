@@ -4,6 +4,7 @@ mod commons;
 mod dto;
 mod features;
 mod repos;
+mod utils;
 
 use actix_web::{App, HttpServer, web};
 
