@@ -4,7 +4,10 @@ use crate::{
   app_state::AppState,
   commons::status_code_const::StatusCodeConst,
   dto::base_res_dto::{BaseResDto, Status},
-  features::users::{user_repo::UserRepo, user_req_dto::GetUserByIdReqDto, user_res_dto::UserDto},
+  features::users::{
+    user_dto::{GetUserByIdReqDto, UserDto},
+    user_repo::UserRepo,
+  },
 };
 
 #[post("/")]

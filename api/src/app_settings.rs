@@ -1,6 +1,14 @@
 use serde::Deserialize;
 
 #[derive(Deserialize, Clone)]
+pub struct AppSetting {
+  pub rust_log: String,
+  pub server: ServerSetting,
+  pub database: DatabaseSetting,
+  pub jwt: JwtSetting,
+}
+
+#[derive(Deserialize, Clone)]
 pub struct ServerSetting {
   pub host: String,
   pub port: u16,
@@ -19,8 +27,9 @@ pub struct DatabaseConnectionInfo {
 }
 
 #[derive(Deserialize, Clone)]
-pub struct AppSetting {
-  pub rust_log: String,
-  pub server: ServerSetting,
-  pub database: DatabaseSetting,
+pub struct JwtSetting {
+  pub secret_key: String,
+  pub expiration_minutes: usize,
+  pub issuer: String,
+  pub audience: String,
 }

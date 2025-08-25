@@ -10,7 +10,7 @@ use actix_web::{App, HttpServer, web};
 
 use crate::{
   app_state::AppState,
-  features::{auth::auth_handler, users::user_handler},
+  features::{auth::auth_route::auth_routes, users::user_route::user_routes},
 };
 
 #[actix_web::main]
@@ -42,12 +42,8 @@ async fn main() -> std::io::Result<()> {
       // Public routes here
       .service(
         web::scope("/api/v1")
-          .service(web::scope("/auth").service(auth_handler::register))
-          .service(
-            web::scope("/users")
-              .service(user_handler::get_users)
-              .service(user_handler::get_user_by_id),
-          ),
+          .configure(auth_routes)
+          .configure(user_routes),
       )
   })
   .bind((host.clone(), port))?;

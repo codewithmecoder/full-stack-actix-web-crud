@@ -1,6 +1,6 @@
 use crate::{
   app_state::AppState,
-  features::users::{user_entity::User, user_req_dto::UserRegisterReqDto},
+  features::users::{user_dto::UserRegisterReqDto, user_entity::User},
   repos::{
     sql_pool_manager::PooledClient,
     sql_repo::{CommandType, SqlRepo},
