@@ -9,6 +9,7 @@ pub struct User {
   pub name: String,
   pub password: String,
   pub email: String,
+  pub role: UserRole,
   pub created_at: DateTime<Utc>,
   pub updated_at: DateTime<Utc>,
 }
@@ -53,8 +54,39 @@ impl User {
         .expect("Failed to get password")
         .unwrap_or_default()
         .to_string(),
+      role: UserRole::from_str(
+        row
+          .try_get::<&str, &str>("role")
+          .expect("Failed to get role")
+          .unwrap(),
+      ),
       created_at: created_at,
       updated_at: updated_at,
+    }
+  }
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+pub enum UserRole {
+  Admin,
+  Moderator,
+  User,
+}
+
+impl UserRole {
+  // pub fn to_str(&self) -> &str {
+  //   match self {
+  //     UserRole::Admin => "admin",
+  //     UserRole::Moderator => "moderator",
+  //     UserRole::User => "user",
+  //   }
+  // }
+
+  pub fn from_str(s: &str) -> Self {
+    match s {
+      "admin" => UserRole::Admin,
+      "moderator" => UserRole::Moderator,
+      _ => UserRole::User,
     }
   }
 }

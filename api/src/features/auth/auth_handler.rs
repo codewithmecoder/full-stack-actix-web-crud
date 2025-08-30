@@ -1,16 +1,16 @@
 use actix_web::{
   HttpResponse, Responder,
   cookie::{
-    Cookie,
+    self, Cookie,
     time::{Duration, OffsetDateTime},
   },
-  post, web,
+  web,
 };
 
 use crate::{
   app_state::AppState,
-  commons::status_code_const::StatusCodeConst,
-  dto::base_res_dto::{BaseResDto, Status},
+  dto::base_res_dto::Status,
+  error::StatusMessage,
   features::{
     auth::auth_dto::{LoginReqDto, LoginResDto},
     users::{
@@ -21,41 +21,44 @@ use crate::{
   utils::{jwt_util::JwtUtil, password_hashing::PasswordHashing},
 };
 
-#[post("/register")]
 pub async fn register(
   user: web::Json<UserRegisterReqDto>,
   data: web::Data<AppState>,
 ) -> impl Responder {
-  let mut repo = UserRepo::new(&data);
-  if let Err(e) = repo.create(&user).await {
-    return HttpResponse::BadRequest().json(web::Json(BaseResDto::<UserDto> {
-      data: None,
-      status: Status {
-        message: format!("{}", e),
-        code: StatusCodeConst::ERROR.to_string(),
-      },
-    }));
+  if user.password.is_empty()
+    || user.user_name.is_empty()
+    || user.name.is_empty()
+    || user.email.is_empty()
+  {
+    return HttpResponse::BadRequest().json(Status::uqique_constraint_voilation(
+      StatusMessage::WrongParams.to_str(),
+    ));
   }
-  HttpResponse::Ok().json(BaseResDto::<UserDto> {
-    data: None,
-    status: Status {
-      message: "User registered successfully".to_string(),
-      code: StatusCodeConst::SUCCESS.to_string(),
-    },
-  })
+
+  if user.user_name.len() > 150 {
+    return HttpResponse::BadRequest().json(Status::uqique_constraint_voilation(
+      StatusMessage::UserNameExeedMaxLength(150).to_str(),
+    ));
+  }
+
+  let mut repo = UserRepo::new(&data);
+
+  if let Ok(Some(_)) = repo.get_by_username(&user.user_name).await {
+    return HttpResponse::Conflict().json(Status::uqique_constraint_voilation(
+      StatusMessage::UserNameExisted.to_str(),
+    ));
+  }
+
+  if let Err(e) = repo.create(&user).await {
+    return HttpResponse::BadRequest().json(Status::bad_request(format!("{}", e)));
+  }
+  HttpResponse::Ok().json(Status::success())
 }
 
-#[post("/login")]
 pub async fn login(user: web::Json<LoginReqDto>, data: web::Data<AppState>) -> impl Responder {
   let mut repo = UserRepo::new(&data);
   if user.user_name.is_empty() || user.password.is_empty() {
-    return HttpResponse::Unauthorized().json(BaseResDto::<UserDto> {
-      data: None,
-      status: Status {
-        message: "Invalid credentials".to_string(),
-        code: StatusCodeConst::UNAUTHORIZED.to_string(),
-      },
-    });
+    return HttpResponse::Unauthorized().json(Status::unauthorized(StatusMessage::Unauthorized));
   }
 
   if let Ok(Some(db_user)) = repo.get_by_username(&user.user_name).await {
@@ -71,22 +74,20 @@ pub async fn login(user: web::Json<LoginReqDto>, data: web::Data<AppState>) -> i
           .finish();
         return HttpResponse::Ok()
           .cookie(cookie)
-          .json(BaseResDto::<LoginResDto> {
-            data: Some(LoginResDto { token }),
-            status: Status {
-              message: "Login Successfully".to_string(),
-              code: StatusCodeConst::UNAUTHORIZED.to_string(),
-            },
-          });
+          .json(Status::success_with_data(LoginResDto { token }));
       }
     }
   }
 
-  HttpResponse::Ok().json(BaseResDto::<LoginResDto> {
-    data: None,
-    status: Status {
-      message: "Invalid credentials".to_string(),
-      code: StatusCodeConst::UNAUTHORIZED.to_string(),
-    },
-  })
+  HttpResponse::Ok().json(Status::unauthorized(StatusMessage::Unauthorized))
+}
+
+pub async fn logout() -> impl Responder {
+  let cookie = Cookie::build("token", "")
+    .path("/")
+    .max_age(cookie::time::Duration::new(-1, 0))
+    .http_only(true)
+    .finish();
+
+  HttpResponse::Ok().cookie(cookie).json(Status::success())
 }

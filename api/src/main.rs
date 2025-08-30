@@ -2,11 +2,14 @@ mod app_settings;
 mod app_state;
 mod commons;
 mod dto;
+mod error;
 mod features;
+mod middleware;
 mod repos;
 mod utils;
 
-use actix_web::{App, HttpServer, web};
+use actix_cors::Cors;
+use actix_web::{App, HttpServer, http::header, middleware::Logger, web};
 
 use crate::{
   app_state::AppState,
@@ -37,13 +40,25 @@ async fn main() -> std::io::Result<()> {
   let port = state.config.server.port;
 
   let server = HttpServer::new(move || {
+    let cors = Cors::default()
+      .allowed_origin("http://localhost:3000")
+      .allowed_origin("http://localhost:8000")
+      .allowed_methods(vec!["GET", "POST"])
+      .allowed_headers(vec![
+        header::CONTENT_TYPE,
+        header::AUTHORIZATION,
+        header::ACCEPT,
+      ])
+      .supports_credentials();
     App::new()
       .app_data(state.clone())
+      .wrap(cors)
+      .wrap(Logger::default())
       // Public routes here
       .service(
         web::scope("/api/v1")
-          .configure(auth_routes)
-          .configure(user_routes),
+          .service(auth_routes())
+          .service(user_routes()),
       )
   })
   .bind((host.clone(), port))?;

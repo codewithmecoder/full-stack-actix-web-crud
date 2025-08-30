@@ -14,7 +14,8 @@ pub struct Status {
   #[serde(default)]
   pub message: String, // defaults to empty string
   #[serde(default = "default_code")]
-  pub code: String, // defaults to "OK"
+  pub code: String, // defaults to "SUCCESS"
+  pub status: u16,
 }
 
 // Default value for code
@@ -28,6 +29,7 @@ impl Default for Status {
     Status {
       message: String::new(),
       code: default_code(),
+      status: 200,
     }
   }
 }

@@ -1,11 +1,32 @@
-use actix_web::web::{self, ServiceConfig};
+use actix_web::{
+  Scope,
+  web::{self},
+};
 
-use crate::features::users::user_handler;
+use crate::{
+  features::users::{
+    user_entity::UserRole,
+    user_handler::{get_user_by_id, get_users},
+  },
+  middleware::auth::RequireAuth,
+};
 
-pub fn user_routes(cfg: &mut ServiceConfig) {
-  cfg.service(
-    web::scope("/users")
-      .service(user_handler::get_users)
-      .service(user_handler::get_user_by_id),
-  );
+pub fn user_routes() -> Scope {
+  web::scope("/users")
+    .route(
+      "/all",
+      web::post()
+        .to(get_users)
+        .wrap(RequireAuth::allow_roles(vec![UserRole::Admin])),
+    )
+    .route(
+      "/by_id",
+      web::post()
+        .to(get_user_by_id)
+        .wrap(RequireAuth::allow_roles(vec![
+          UserRole::User,
+          UserRole::Moderator,
+          UserRole::Admin,
+        ])),
+    )
 }

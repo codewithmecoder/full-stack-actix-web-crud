@@ -43,7 +43,13 @@ impl<'a> UserRepo<'a> {
     let hashed_password = PasswordHashing::hash_password(&user.password)
       .map_err(|e| anyhow::anyhow!("Failed to hash password: {}", e))?;
 
-    let params: Vec<&dyn ToSql> = vec![&user.name, &user.user_name, &user.email, &hashed_password];
+    let params: Vec<&dyn ToSql> = vec![
+      &user.name,
+      &user.user_name,
+      &user.email,
+      &hashed_password,
+      &user.role,
+    ];
 
     let mut client_pool = self.get_client().await;
 

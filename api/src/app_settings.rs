@@ -6,6 +6,7 @@ pub struct AppSetting {
   pub server: ServerSetting,
   pub database: DatabaseSetting,
   pub jwt: JwtSetting,
+  pub cookie: CookieSetting,
 }
 
 #[derive(Deserialize, Clone)]
@@ -32,4 +33,9 @@ pub struct JwtSetting {
   pub expiration_minutes: usize,
   pub issuer: String,
   pub audience: String,
+}
+
+#[derive(Deserialize, Clone)]
+pub struct CookieSetting {
+  pub name: String,
 }

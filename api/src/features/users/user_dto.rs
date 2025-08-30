@@ -28,6 +28,7 @@ pub struct UserRegisterReqDto {
   pub password: String,
   pub email: String,
   pub name: String,
+  pub role: String,
 }
 
 #[derive(Deserialize, Serialize, Debug)]
