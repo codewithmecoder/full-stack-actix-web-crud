@@ -6,7 +6,7 @@ use actix_web::{
 use crate::{
   features::users::{
     user_entity::UserRole,
-    user_handler::{get_user_by_id, get_users},
+    user_handler::{get_user_by_id, get_users, update_user},
   },
   middleware::auth::RequireAuth,
 };
@@ -23,6 +23,16 @@ pub fn user_routes() -> Scope {
       "/by_id",
       web::post()
         .to(get_user_by_id)
+        .wrap(RequireAuth::allow_roles(vec![
+          UserRole::User,
+          UserRole::Moderator,
+          UserRole::Admin,
+        ])),
+    )
+    .route(
+      "/update",
+      web::post()
+        .to(update_user)
         .wrap(RequireAuth::allow_roles(vec![
           UserRole::User,
           UserRole::Moderator,

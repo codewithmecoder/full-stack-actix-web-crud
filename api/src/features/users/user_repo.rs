@@ -1,6 +1,9 @@
 use crate::{
   app_state::AppState,
-  features::users::{user_dto::UserRegisterReqDto, user_entity::User},
+  features::users::{
+    user_dto::{UserDto, UserRegisterReqDto},
+    user_entity::User,
+  },
   repos::{
     sql_pool_manager::PooledClient,
     sql_repo::{CommandType, SqlRepo},
@@ -103,5 +106,21 @@ impl<'a> UserRepo<'a> {
     )
     .await?;
     Ok(users)
+  }
+
+  pub async fn update_user(&mut self, user: &UserDto) -> Result<u64> {
+    let mut client_pool = self.get_client().await;
+
+    let role = user.role.to_str();
+    let params: Vec<&dyn ToSql> = vec![&user.name, &user.user_name, &user.email, &role];
+
+    let result = SqlRepo::execute_command_none_query(
+      &mut client_pool,
+      "[dbo].[update_user]",
+      &params,
+      CommandType::StoreProcedure,
+    )
+    .await?;
+    Ok(result)
   }
 }

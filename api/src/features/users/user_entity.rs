@@ -74,13 +74,13 @@ pub enum UserRole {
 }
 
 impl UserRole {
-  // pub fn to_str(&self) -> &str {
-  //   match self {
-  //     UserRole::Admin => "admin",
-  //     UserRole::Moderator => "moderator",
-  //     UserRole::User => "user",
-  //   }
-  // }
+  pub fn to_str(&self) -> &str {
+    match self {
+      UserRole::Admin => "admin",
+      UserRole::Moderator => "moderator",
+      UserRole::User => "user",
+    }
+  }
 
   pub fn from_str(s: &str) -> Self {
     match s {

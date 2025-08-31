@@ -1,4 +1,4 @@
-use crate::features::users::user_entity::User;
+use crate::features::users::user_entity::{User, UserRole};
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Clone)]
@@ -7,6 +7,7 @@ pub struct UserDto {
   pub user_name: String,
   pub name: String,
   pub email: String,
+  pub role: UserRole,
 }
 
 impl From<User> for UserDto {
@@ -16,6 +17,7 @@ impl From<User> for UserDto {
       name: user.name,
       user_name: user.user_name,
       email: user.email,
+      role: user.role,
     }
   }
 }
@@ -34,4 +36,12 @@ pub struct UserRegisterReqDto {
 #[derive(Deserialize, Serialize, Debug)]
 pub struct GetUserByIdReqDto {
   pub id: i32,
+}
+
+#[derive(Deserialize, Serialize, Debug)]
+pub struct UpdateUserReqDto {
+  pub user_name: String,
+  pub name: Option<String>,
+  pub email: Option<String>,
+  pub role: Option<String>,
 }

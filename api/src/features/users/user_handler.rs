@@ -6,7 +6,8 @@ use crate::{
   dto::base_res_dto::{BaseResDto, Status},
   error::StatusMessage,
   features::users::{
-    user_dto::{GetUserByIdReqDto, UserDto},
+    user_dto::{GetUserByIdReqDto, UpdateUserReqDto, UserDto},
+    user_entity::UserRole,
     user_repo::UserRepo,
   },
 };
@@ -40,11 +41,46 @@ pub async fn get_user_by_id(
       if let Some(u) = user {
         HttpResponse::Ok().json(Status::success_with_data(UserDto::from(u)))
       } else {
-        HttpResponse::BadRequest().json(Status::bad_request(StatusMessage::NotFound("User".into())))
+        HttpResponse::BadRequest().json(Status::not_found(StatusMessage::NotFound("User".into())))
       }
     }
     Err(e) => {
       HttpResponse::BadRequest().json(Status::bad_request(format!("Failed to get users: {}", e)))
+    }
+  }
+}
+
+pub async fn update_user(
+  user_update: web::Json<UpdateUserReqDto>,
+  data: web::Data<AppState>,
+) -> impl Responder {
+  let mut repo = UserRepo::new(&data);
+
+  match repo.get_by_username(&user_update.user_name).await {
+    Ok(user) => {
+      if let Some(mut u) = user {
+        if let Some(new_email) = &user_update.email {
+          u.email = new_email.clone();
+        }
+        if let Some(new_name) = &user_update.name {
+          u.name = new_name.clone();
+        }
+        if let Some(new_role) = &user_update.role {
+          let parsed_role = UserRole::from_str(new_role);
+          u.role = parsed_role;
+        }
+
+        match repo.update_user(&UserDto::from(u.clone())).await {
+          Ok(_) => HttpResponse::Ok().json(Status::success()),
+          Err(e) => HttpResponse::BadRequest()
+            .json(Status::bad_request(format!("Failed to update user: {}", e))),
+        }
+      } else {
+        HttpResponse::BadRequest().json(Status::not_found(StatusMessage::NotFound("User".into())))
+      }
+    }
+    Err(e) => {
+      HttpResponse::BadRequest().json(Status::bad_request(format!("Failed to update user: {}", e)))
     }
   }
 }
