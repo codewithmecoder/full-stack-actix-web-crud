@@ -21,6 +21,7 @@ pub enum StatusMessage {
   Unauthorized,
   PermissionDenied,
   UserNameExisted,
+  Existed(String),
   UserNameExeedMaxLength(usize),
   WrongParams,
   DecodeTokenErr,
@@ -47,6 +48,7 @@ impl StatusMessage {
       StatusMessage::Unauthorized => "Invalid credentials".to_string(),
       StatusMessage::PermissionDenied => "Permission denied".to_string(),
       StatusMessage::UserNameExisted => "Username already existed".to_string(),
+      StatusMessage::Existed(ex) => format!("{} already existed", ex),
       StatusMessage::UserNameExeedMaxLength(max_length) => {
         format!("Username cannot exceed {} characters", max_length)
       }

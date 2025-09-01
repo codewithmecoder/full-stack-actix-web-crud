@@ -12,7 +12,7 @@ use crate::{
 };
 
 pub fn user_routes() -> Scope {
-  web::scope("/users")
+  web::scope("/user")
     .route(
       "/all",
       web::post()

@@ -13,7 +13,9 @@ use actix_web::{App, HttpServer, http::header, middleware::Logger, web};
 
 use crate::{
   app_state::AppState,
-  features::{auth::auth_route::auth_routes, users::user_route::user_routes},
+  features::{
+    auth::auth_route::auth_routes, roles::roles_route::role_routes, users::user_route::user_routes,
+  },
 };
 
 #[actix_web::main]
@@ -58,7 +60,8 @@ async fn main() -> std::io::Result<()> {
       .service(
         web::scope("/api/v1")
           .service(auth_routes())
-          .service(user_routes()),
+          .service(user_routes())
+          .service(role_routes()),
       )
   })
   .bind((host.clone(), port))?;
