@@ -1,6 +1,8 @@
 use actix_web::{Scope, web};
 
-use crate::features::roles::roles_handler::{create_role, get_roles, get_user_roles, update_role};
+use crate::features::roles::roles_handler::{
+  assign_user_role, create_role, get_roles, get_user_roles, update_role,
+};
 use crate::{features::users::user_entity::UserRole, middleware::auth::RequireAuth};
 pub fn role_routes() -> Scope {
   web::scope("/role")
@@ -26,6 +28,12 @@ pub fn role_routes() -> Scope {
       "/user_roles",
       web::post()
         .to(get_user_roles)
+        .wrap(RequireAuth::allow_roles(vec![UserRole::Admin])),
+    )
+    .route(
+      "/assign_user_role",
+      web::post()
+        .to(assign_user_role)
         .wrap(RequireAuth::allow_roles(vec![UserRole::Admin])),
     )
 }

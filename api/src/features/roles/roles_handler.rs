@@ -7,7 +7,8 @@ use crate::{
   features::{
     roles::{
       roles_dto::{
-        CreateRoleReqDto, GetUserRolesReqDto, RoleDto, UpdateRoleReqDto, UserRolesResDto,
+        AssignUserRoleReqDto, CreateRoleReqDto, GetUserRolesReqDto, RoleDto, UpdateRoleReqDto,
+        UserRolesResDto,
       },
       roles_entity::RoleEntity,
       roles_repo::RoleRepo,
@@ -109,4 +110,19 @@ pub async fn get_roles(data: web::Data<AppState>) -> impl Responder {
   }
 
   HttpResponse::Ok().json(Status::success_with_data(Vec::<RoleDto>::new()))
+}
+
+pub async fn assign_user_role(
+  r: web::Json<AssignUserRoleReqDto>,
+  data: web::Data<AppState>,
+) -> impl Responder {
+  let mut repo = RoleRepo::new(&data);
+  if repo.is_user_role_exist(r.user_id, r.role_id).await {
+    return Status::uqique_constraint_voilation("User already has that role").into_http_response();
+  }
+  if let Err(e) = repo.assign_user_role(r.user_id, r.role_id).await {
+    return Status::bad_request(format!("Failed to assign user to role: {}", e))
+      .into_http_response();
+  }
+  HttpResponse::Ok().json(Status::success())
 }

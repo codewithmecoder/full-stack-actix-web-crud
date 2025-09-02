@@ -1,6 +1,6 @@
 use crate::{
   app_state::AppState,
-  features::roles::roles_entity::{RoleEntity, UserRolesEntity},
+  features::roles::roles_entity::{RoleEntity, UserRoleEntity, UserRolesEntity},
   repos::{
     sql_pool_manager::PooledClient,
     sql_repo::{CommandType, SqlRepo},
@@ -115,5 +115,34 @@ impl<'a> RoleRepo<'a> {
     )
     .await?;
     Ok(user_roles)
+  }
+
+  pub async fn is_user_role_exist(&mut self, user_id: i32, role_id: i32) -> bool {
+    let mut client_pool = self.get_client().await;
+
+    let user_role = SqlRepo::execute_command_single_query(
+      &mut client_pool,
+      "[dbo].[is_user_role_exist]",
+      &[&user_id, &role_id],
+      CommandType::StoreProcedure,
+      |row| UserRoleEntity::from(row),
+    )
+    .await;
+    if let Ok(Some(ur)) = user_role {
+      return ur.id > 0;
+    }
+    return false;
+  }
+
+  pub async fn assign_user_role(&mut self, user_id: i32, role_id: i32) -> Result<u64> {
+    let mut client_pool = self.get_client().await;
+    let result = SqlRepo::execute_command_none_query(
+      &mut client_pool,
+      "[dbo].[assign_user_role]",
+      &[&user_id, &role_id],
+      CommandType::StoreProcedure,
+    )
+    .await?;
+    Ok(result)
   }
 }

@@ -34,6 +34,12 @@ pub struct GetUserRolesReqDto {
   pub user_id: i32,
 }
 
+#[derive(Deserialize, Clone)]
+pub struct AssignUserRoleReqDto {
+  pub user_id: i32,
+  pub role_id: i32,
+}
+
 impl From<UserRoleEntity> for UserRoleDto {
   fn from(value: UserRoleEntity) -> Self {
     Self {
