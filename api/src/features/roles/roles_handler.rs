@@ -6,7 +6,9 @@ use crate::{
   error::StatusMessage,
   features::{
     roles::{
-      roles_dto::{CreateRoleReqDto, GetUserRolesReqDto, UpdateRoleReqDto, UserRolesResDto},
+      roles_dto::{
+        CreateRoleReqDto, GetUserRolesReqDto, RoleDto, UpdateRoleReqDto, UserRolesResDto,
+      },
       roles_entity::RoleEntity,
       roles_repo::RoleRepo,
     },
@@ -97,4 +99,14 @@ pub async fn get_user_roles(
     }
     Err(e) => Status::bad_request(format!("Failed to get user roles: {}", e)).into_http_response(),
   }
+}
+
+pub async fn get_roles(data: web::Data<AppState>) -> impl Responder {
+  let mut repo = RoleRepo::new(&data);
+  if let Ok(roles) = repo.get_roles().await {
+    let roles_dto: Vec<RoleDto> = roles.iter().map(|r| RoleDto::from(r)).collect();
+    return HttpResponse::Ok().json(Status::success_with_data(roles_dto));
+  }
+
+  HttpResponse::Ok().json(Status::success_with_data(Vec::<RoleDto>::new()))
 }

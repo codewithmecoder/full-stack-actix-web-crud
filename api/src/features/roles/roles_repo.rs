@@ -89,6 +89,20 @@ impl<'a> RoleRepo<'a> {
     Ok(role)
   }
 
+  pub async fn get_roles(&mut self) -> Result<Vec<RoleEntity>> {
+    let mut client_pool = self.get_client().await;
+
+    let roles = SqlRepo::execute_command_query(
+      &mut client_pool,
+      "[dbo].[select_roles]",
+      &[],
+      CommandType::StoreProcedure,
+      |row| RoleEntity::from(row),
+    )
+    .await?;
+    Ok(roles)
+  }
+
   pub async fn get_user_roles(&mut self, user_id: i32) -> Result<Vec<UserRolesEntity>> {
     let mut client_pool = self.get_client().await;
 

@@ -44,12 +44,12 @@ impl From<UserRoleEntity> for UserRoleDto {
   }
 }
 
-impl From<RoleEntity> for RoleDto {
-  fn from(value: RoleEntity) -> Self {
+impl From<&RoleEntity> for RoleDto {
+  fn from(value: &RoleEntity) -> Self {
     Self {
       id: value.id,
-      name: value.name,
-      description: value.description,
+      name: value.name.clone(),
+      description: value.description.clone(),
     }
   }
 }
