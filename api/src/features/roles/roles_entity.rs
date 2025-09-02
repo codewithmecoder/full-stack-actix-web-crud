@@ -20,6 +20,13 @@ pub struct RoleEntity {
   pub updated_at: DateTime<Utc>,
 }
 
+#[derive(Deserialize, Serialize, Clone)]
+pub struct UserRolesEntity {
+  pub role_id: i32,
+  pub role_name: String,
+  pub is_in_role: bool,
+}
+
 impl From<&Row> for RoleEntity {
   fn from(row: &Row) -> Self {
     let naive_created_at: NaiveDateTime = row
@@ -117,6 +124,26 @@ impl From<UpdateRoleReqDto> for RoleEntity {
       description: value.description,
       created_at: Utc::now(),
       updated_at: Utc::now(),
+    }
+  }
+}
+
+impl From<&Row> for UserRolesEntity {
+  fn from(row: &Row) -> Self {
+    Self {
+      role_id: row
+        .try_get::<i32, &str>("role_id")
+        .expect("Failed to get role_id")
+        .unwrap_or_default(), // fallback if null
+      role_name: row
+        .try_get::<&str, &str>("role_name")
+        .expect("Failed to get role_name")
+        .unwrap_or_default()
+        .to_string(),
+      is_in_role: row
+        .try_get::<bool, &str>("is_in_role")
+        .expect("Failed to get is_in_role")
+        .unwrap_or_default(),
     }
   }
 }

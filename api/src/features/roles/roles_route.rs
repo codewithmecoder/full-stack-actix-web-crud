@@ -1,25 +1,15 @@
 use actix_web::{Scope, web};
 
-use crate::features::roles::roles_handler::{create_role, update_role};
+use crate::features::roles::roles_handler::{create_role, get_roles, get_user_roles, update_role};
 use crate::{features::users::user_entity::UserRole, middleware::auth::RequireAuth};
 pub fn role_routes() -> Scope {
   web::scope("/role")
-    // .route(
-    //   "/all",
-    //   web::post()
-    //     .to(get_users)
-    //     .wrap(RequireAuth::allow_roles(vec![UserRole::Admin])),
-    // )
-    // .route(
-    //   "/by_id",
-    //   web::post()
-    //     .to(get_user_by_id)
-    //     .wrap(RequireAuth::allow_roles(vec![
-    //       UserRole::User,
-    //       UserRole::Moderator,
-    //       UserRole::Admin,
-    //     ])),
-    // )
+    .route(
+      "/all",
+      web::post()
+        .to(get_roles)
+        .wrap(RequireAuth::allow_roles(vec![UserRole::Admin])),
+    )
     .route(
       "/create",
       web::post()
@@ -30,6 +20,12 @@ pub fn role_routes() -> Scope {
       "/update",
       web::post()
         .to(update_role)
+        .wrap(RequireAuth::allow_roles(vec![UserRole::Admin])),
+    )
+    .route(
+      "/user_roles",
+      web::post()
+        .to(get_user_roles)
         .wrap(RequireAuth::allow_roles(vec![UserRole::Admin])),
     )
 }

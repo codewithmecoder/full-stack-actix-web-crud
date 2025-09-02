@@ -4,10 +4,13 @@ use crate::{
   app_state::AppState,
   dto::base_res_dto::Status,
   error::StatusMessage,
-  features::roles::{
-    roles_dto::{CreateRoleReqDto, UpdateRoleReqDto},
-    roles_entity::RoleEntity,
-    roles_repo::RoleRepo,
+  features::{
+    roles::{
+      roles_dto::{CreateRoleReqDto, GetUserRolesReqDto, UpdateRoleReqDto, UserRolesResDto},
+      roles_entity::RoleEntity,
+      roles_repo::RoleRepo,
+    },
+    users::user_repo::UserRepo,
   },
 };
 
@@ -65,5 +68,33 @@ pub async fn update_role(
         .into_http_response()
     }
     Err(e) => Status::bad_request(format!("failed to update role: {}", e)).into_http_response(),
+  }
+}
+
+pub async fn get_user_roles(
+  r: web::Json<GetUserRolesReqDto>,
+  data: web::Data<AppState>,
+) -> impl Responder {
+  let mut repo = RoleRepo::new(&data);
+  let mut user_repo = UserRepo::new(&data);
+  match user_repo.get_by_id(r.user_id).await {
+    Ok(user_option) => {
+      if let Some(user) = user_option {
+        if let Ok(user_roles) = repo.get_user_roles(user.id).await {
+          let user_roles_dto: Vec<UserRolesResDto> = user_roles
+            .iter()
+            .map(|ur| UserRolesResDto::from(ur))
+            .collect();
+          return HttpResponse::Ok().json(Status::success_with_data(user_roles_dto));
+        }
+        return HttpResponse::Ok().json(Status::success_with_data(Vec::<UserRolesResDto>::new()));
+      }
+      Status::not_found(StatusMessage::NotFound(format!(
+        "User with id '{}'",
+        r.user_id
+      )))
+      .into_http_response()
+    }
+    Err(e) => Status::bad_request(format!("Failed to get user roles: {}", e)).into_http_response(),
   }
 }

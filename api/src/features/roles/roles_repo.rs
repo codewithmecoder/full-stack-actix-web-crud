@@ -1,6 +1,6 @@
 use crate::{
   app_state::AppState,
-  features::roles::roles_entity::RoleEntity,
+  features::roles::roles_entity::{RoleEntity, UserRolesEntity},
   repos::{
     sql_pool_manager::PooledClient,
     sql_repo::{CommandType, SqlRepo},
@@ -87,5 +87,19 @@ impl<'a> RoleRepo<'a> {
     )
     .await?;
     Ok(role)
+  }
+
+  pub async fn get_user_roles(&mut self, user_id: i32) -> Result<Vec<UserRolesEntity>> {
+    let mut client_pool = self.get_client().await;
+
+    let user_roles = SqlRepo::execute_command_query(
+      &mut client_pool,
+      "[dbo].[select_user_role]",
+      &[&user_id],
+      CommandType::StoreProcedure,
+      |row| UserRolesEntity::from(row),
+    )
+    .await?;
+    Ok(user_roles)
   }
 }
