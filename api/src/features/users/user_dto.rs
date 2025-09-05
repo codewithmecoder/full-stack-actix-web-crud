@@ -1,7 +1,8 @@
 use crate::features::users::user_entity::{User, UserRole};
 use serde::{Deserialize, Serialize};
+use utoipa::ToSchema;
 
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Serialize, Deserialize, Clone, ToSchema)]
 pub struct UserDto {
   pub id: i32,
   pub user_name: String,
@@ -24,7 +25,7 @@ impl From<User> for UserDto {
 
 // --- Request Dto --- //
 
-#[derive(Deserialize, Serialize, Debug)]
+#[derive(Deserialize, Serialize, Debug, ToSchema)]
 pub struct UserRegisterReqDto {
   pub user_name: String,
   pub password: String,
@@ -33,12 +34,12 @@ pub struct UserRegisterReqDto {
   pub role: String,
 }
 
-#[derive(Deserialize, Serialize, Debug)]
+#[derive(Deserialize, Serialize, Debug, ToSchema)]
 pub struct GetUserByIdReqDto {
   pub id: i32,
 }
 
-#[derive(Deserialize, Serialize, Debug)]
+#[derive(Deserialize, Serialize, Debug, ToSchema)]
 pub struct UpdateUserReqDto {
   pub user_name: String,
   pub name: Option<String>,

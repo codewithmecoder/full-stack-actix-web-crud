@@ -1,6 +1,7 @@
 use serde::{Deserialize, Serialize};
+use utoipa::ToSchema;
 
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Serialize, Deserialize, Clone, ToSchema)]
 pub struct LoginResDto {
   pub token: String,
 }
@@ -22,7 +23,7 @@ pub struct Claims {
 }
 
 // --- Request Dto --- //
-#[derive(Deserialize, Serialize, Clone)]
+#[derive(Deserialize, Serialize, Clone, ToSchema)]
 pub struct LoginReqDto {
   pub user_name: String,
   pub password: String,

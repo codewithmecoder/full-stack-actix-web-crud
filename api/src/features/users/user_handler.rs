@@ -12,6 +12,32 @@ use crate::{
   },
 };
 
+#[utoipa::path(
+    post,
+    path = "/api/v1/user/all",
+    tag = "Users",
+    request_body(
+        content = (),
+        description = "",
+        example = json!({})),
+    responses( 
+        (
+            status=200, 
+            description= "Get users successfully", 
+            body= BaseResDto<Vec<UserDto>>
+        ),
+        (
+            status=400, 
+            description= "Validation Errors", 
+            body= Status
+        ),
+        (
+            status=500, 
+            description= "Internal Server Error", 
+            body= Status 
+        ),
+    )
+)]
 pub async fn get_users(data: web::Data<AppState>) -> impl Responder {
   let mut repo = UserRepo::new(&data);
 
@@ -30,6 +56,34 @@ pub async fn get_users(data: web::Data<AppState>) -> impl Responder {
   }
 }
 
+#[utoipa::path(
+    post,
+    path = "/api/v1/user/by_id",
+    tag = "Users",
+    request_body(
+        content = GetUserByIdReqDto,
+        description = "",
+        example = json!({
+          "id": 1
+        })),
+    responses( 
+        (
+            status=200, 
+            description= "Get users successfully", 
+            body= BaseResDto<UserDto>
+        ),
+        (
+            status=400, 
+            description= "Validation Errors", 
+            body= Status
+        ),
+        (
+            status=500, 
+            description= "Internal Server Error", 
+            body= Status 
+        ),
+    )
+)]
 pub async fn get_user_by_id(
   id: web::Json<GetUserByIdReqDto>,
   data: web::Data<AppState>,
@@ -50,6 +104,38 @@ pub async fn get_user_by_id(
   }
 }
 
+#[utoipa::path(
+    post,
+    path = "/api/v1/user/update",
+    tag = "Users",
+    request_body(
+        content = UpdateUserReqDto,
+        description = "",
+        example = json!(
+          {
+            "user_name": "nith",
+            "name": "nith update",
+            "email": "nithupdate@gmail.com",
+            "role": "admin"
+          })),
+    responses( 
+        (
+            status=200, 
+            description= "Update user successfully", 
+            body= Status
+        ),
+        (
+            status=400, 
+            description= "Validation Errors", 
+            body= Status
+        ),
+        (
+            status=500, 
+            description= "Internal Server Error", 
+            body= Status 
+        ),
+    )
+)]
 pub async fn update_user(
   user_update: web::Json<UpdateUserReqDto>,
   data: web::Data<AppState>,

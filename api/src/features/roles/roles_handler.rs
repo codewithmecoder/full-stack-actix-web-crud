@@ -2,7 +2,7 @@ use actix_web::{HttpResponse, Responder, web};
 
 use crate::{
   app_state::AppState,
-  dto::base_res_dto::Status,
+  dto::base_res_dto::{BaseResDto, Status},
   error::StatusMessage,
   features::{
     roles::{
@@ -17,6 +17,36 @@ use crate::{
   },
 };
 
+#[utoipa::path(
+    post,
+    path = "/api/v1/role/create",
+    tag = "Roles",
+    request_body(
+        content = CreateRoleReqDto,
+        description = "",
+        example = json!(
+            {
+                "name": "read",
+                "description": "Has access to read only with all features"
+            })),
+    responses( 
+        (
+            status=200, 
+            description= "Role created successfully", 
+            body= Status 
+        ),
+        (
+            status=400, 
+            description= "Validation Errors", 
+            body= Status
+        ),
+        (
+            status=500, 
+            description= "Internal Server Error", 
+            body= Status 
+        ),
+    )
+)]
 pub async fn create_role(
   role: web::Json<CreateRoleReqDto>,
   data: web::Data<AppState>,
@@ -43,6 +73,37 @@ pub async fn create_role(
   }
 }
 
+#[utoipa::path(
+    post,
+    path = "/api/v1/role/update",
+    tag = "Roles",
+    request_body(
+        content = UpdateRoleReqDto,
+        description = "",
+        example = json!(
+            {
+                "id": 1,
+                "name": "admin",
+                "description": "Has access to read only with all features"
+            })),
+    responses( 
+        (
+            status=200, 
+            description= "Role updated successfully", 
+            body= Status 
+        ),
+        (
+            status=400, 
+            description= "Validation Errors", 
+            body= Status
+        ),
+        (
+            status=500, 
+            description= "Internal Server Error", 
+            body= Status 
+        ),
+    )
+)]
 pub async fn update_role(
   role: web::Json<UpdateRoleReqDto>,
   data: web::Data<AppState>,
@@ -74,6 +135,35 @@ pub async fn update_role(
   }
 }
 
+#[utoipa::path(
+    post,
+    path = "/api/v1/role/user_roles",
+    tag = "Roles",
+    request_body(
+        content = GetUserRolesReqDto,
+        description = "",
+        example = json!(
+            {
+                "user_id": 1
+            })),
+    responses( 
+        (
+            status=200, 
+            description= "Get user roles successfully", 
+            body= BaseResDto<Vec<UserRolesResDto>> 
+        ),
+        (
+            status=400, 
+            description= "Validation Errors", 
+            body= Status
+        ),
+        (
+            status=500, 
+            description= "Internal Server Error", 
+            body= Status 
+        ),
+    )
+)]
 pub async fn get_user_roles(
   r: web::Json<GetUserRolesReqDto>,
   data: web::Data<AppState>,
@@ -102,6 +192,32 @@ pub async fn get_user_roles(
   }
 }
 
+#[utoipa::path(
+    post,
+    path = "/api/v1/role/roles",
+    tag = "Roles",
+    request_body(
+        content = (),
+        description = "",
+        example = json!({})),
+    responses( 
+        (
+            status=200, 
+            description= "get roles successfully", 
+            body= BaseResDto<Vec<RoleDto>> 
+        ),
+        (
+            status=400, 
+            description= "Validation Errors", 
+            body= Status
+        ),
+        (
+            status=500, 
+            description= "Internal Server Error", 
+            body= Status 
+        ),
+    )
+)]
 pub async fn get_roles(data: web::Data<AppState>) -> impl Responder {
   let mut repo = RoleRepo::new(&data);
   if let Ok(roles) = repo.get_roles().await {
@@ -112,6 +228,36 @@ pub async fn get_roles(data: web::Data<AppState>) -> impl Responder {
   HttpResponse::Ok().json(Status::success_with_data(Vec::<RoleDto>::new()))
 }
 
+#[utoipa::path(
+    post,
+    path = "/api/v1/role/assign_user_role",
+    tag = "Roles",
+    request_body(
+        content = (),
+        description = "",
+        example = json!(
+          {
+            "user_id": 1,
+            "role_id": 1
+          })),
+    responses( 
+        (
+            status=200, 
+            description= "Assign user role successfully", 
+            body= Status 
+        ),
+        (
+            status=400, 
+            description= "Validation Errors", 
+            body= Status
+        ),
+        (
+            status=500, 
+            description= "Internal Server Error", 
+            body= Status 
+        ),
+    )
+)]
 pub async fn assign_user_role(
   r: web::Json<AssignUserRoleReqDto>,
   data: web::Data<AppState>,

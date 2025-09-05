@@ -1,6 +1,7 @@
 use chrono::{DateTime, NaiveDateTime, Utc};
 use serde::{Deserialize, Serialize};
 use tiberius::Row;
+use utoipa::ToSchema;
 
 #[derive(Serialize, Deserialize, Clone)]
 pub struct User {
@@ -66,7 +67,7 @@ impl User {
   }
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, ToSchema)]
 pub enum UserRole {
   Admin,
   Moderator,

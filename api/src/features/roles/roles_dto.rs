@@ -1,40 +1,41 @@
 use serde::{Deserialize, Serialize};
+use utoipa::ToSchema;
 
 use crate::features::roles::roles_entity::{RoleEntity, UserRoleEntity, UserRolesEntity};
 
-#[derive(Deserialize, Serialize, Clone)]
+#[derive(Deserialize, Serialize, Clone, ToSchema)]
 pub struct UserRoleDto {
   pub id: i32,
   pub user_id: i32,
   pub role_id: i32,
 }
 
-#[derive(Deserialize, Serialize, Clone)]
+#[derive(Deserialize, Serialize, Clone, ToSchema)]
 pub struct RoleDto {
   pub id: i32,
   pub name: String,
   pub description: Option<String>,
 }
 
-#[derive(Deserialize, Clone)]
+#[derive(Deserialize, Clone, ToSchema)]
 pub struct CreateRoleReqDto {
   pub name: String,
   pub description: Option<String>,
 }
 
-#[derive(Deserialize, Clone)]
+#[derive(Deserialize, Clone, ToSchema)]
 pub struct UpdateRoleReqDto {
   pub id: i32,
   pub name: String,
   pub description: Option<String>,
 }
 
-#[derive(Deserialize, Clone)]
+#[derive(Deserialize, Clone, ToSchema)]
 pub struct GetUserRolesReqDto {
   pub user_id: i32,
 }
 
-#[derive(Deserialize, Clone)]
+#[derive(Deserialize, Clone, ToSchema)]
 pub struct AssignUserRoleReqDto {
   pub user_id: i32,
   pub role_id: i32,
@@ -62,7 +63,7 @@ impl From<&RoleEntity> for RoleDto {
 
 // ---------- Response Dto --------- //
 
-#[derive(Deserialize, Serialize, Clone)]
+#[derive(Deserialize, Serialize, Clone, ToSchema)]
 pub struct UserRolesResDto {
   pub role_id: i32,
   pub role_name: String,
