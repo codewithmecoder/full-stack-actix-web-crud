@@ -1,6 +1,7 @@
 use core::fmt;
 
 use actix_web::{HttpResponse, ResponseError, body};
+use utoipa::ToSchema;
 
 use crate::{
   commons::status_code_const::StatusCodeConst,
@@ -75,7 +76,7 @@ impl Status {
     }
   }
 
-  pub fn success_with_data<T>(data: T) -> BaseResDto<T> {
+  pub fn success_with_data<T: ToSchema>(data: T) -> BaseResDto<T> {
     BaseResDto {
       data: Some(data),
       status: Status {

@@ -1,15 +1,16 @@
 use serde::{Deserialize, Serialize};
+use utoipa::ToSchema;
 
 use crate::commons::status_code_const::StatusCodeConst;
 
-#[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct BaseResDto<T> {
-  pub data: Option<T>, // corresponds to T? in C#
+#[derive(Serialize, Deserialize, Debug, Clone, ToSchema)]
+pub struct BaseResDto<T: ToSchema> {
+  pub data: Option<T>,
   #[serde(default)]
   pub status: Status,
 }
 
-#[derive(Serialize, Deserialize, Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone, ToSchema)]
 pub struct Status {
   #[serde(default)]
   pub message: String, // defaults to empty string
@@ -34,7 +35,7 @@ impl Default for Status {
   }
 }
 // Implement Default for BaseResDto<T>
-impl<T> Default for BaseResDto<T> {
+impl<T: ToSchema> Default for BaseResDto<T> {
   fn default() -> Self {
     BaseResDto {
       data: None,

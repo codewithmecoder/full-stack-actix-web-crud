@@ -21,6 +21,44 @@ use crate::{
   utils::{jwt_util::JwtUtil, password_hashing::PasswordHashing},
 };
 
+#[utoipa::path(
+    post,
+    path = "/api/v1/auth/register",
+    tag = "Authentication",
+    request_body(
+        content = UserRegisterReqDto,
+        description = "Credentials to create account",
+        example = json!(
+            {
+                "name": "admin",
+                "user_name": "admin",
+                "password": "admin",
+                "email": "admin@gmail.com",
+                "role": "admin"
+            })),
+    responses( 
+        (
+            status=200, 
+            description= "Account created successfully", 
+            body= Status 
+        ),
+        (
+            status=400, 
+            description= "Validation Errors", 
+            body= Status
+        ),
+        (
+            status=409, 
+            description= "User with username already exists", 
+            body= Status
+        ),
+        (
+            status=500, 
+            description= "Internal Server Error", 
+            body= Status 
+        ),
+    )
+)]
 pub async fn register(
   user: web::Json<UserRegisterReqDto>,
   data: web::Data<AppState>,
@@ -55,7 +93,40 @@ pub async fn register(
   HttpResponse::Ok().json(Status::success())
 }
 
-pub async fn login(user: web::Json<LoginReqDto>, data: web::Data<AppState>) -> impl Responder {
+#[utoipa::path(
+    post,
+    path = "/api/v1/auth/login",
+    tag = "Authentication",
+    request_body(
+        content = LoginReqDto,
+        description = "",
+        example = json!(
+            {
+                "user_name": "nith",
+                "password": "nith"
+            })),
+    responses( 
+        (
+            status=200, 
+            description= "Login successfully", 
+            body= Status 
+        ),
+        (
+            status=400, 
+            description= "Validation Errors", 
+            body= Status
+        ),
+        (
+            status=500, 
+            description= "Internal Server Error", 
+            body= Status 
+        ),
+    )
+)]
+pub async fn login(
+  user: web::Json<LoginReqDto>,
+  data: web::Data<AppState>,
+) -> impl Responder {
   let mut repo = UserRepo::new(&data);
   if user.user_name.is_empty() || user.password.is_empty() {
     return HttpResponse::Unauthorized().json(Status::unauthorized(StatusMessage::Unauthorized));
@@ -82,6 +153,19 @@ pub async fn login(user: web::Json<LoginReqDto>, data: web::Data<AppState>) -> i
   HttpResponse::Ok().json(Status::unauthorized(StatusMessage::Unauthorized))
 }
 
+#[utoipa::path(
+    post,
+    path = "/api/v1/auth/logut",
+    tag = "Authentication",
+    request_body(),
+    responses( 
+        (
+            status=200, 
+            description= "Logout successfully", 
+            body= Status 
+        )
+    )
+)]
 pub async fn logout() -> impl Responder {
   let cookie = Cookie::build("token", "")
     .path("/")
