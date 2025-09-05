@@ -10,7 +10,6 @@ actix-session = "0.11.0"
 actix-web = "4.11.0"
 anyhow = "1.0.99"
 argon2 = "0.5.3"
-bcrypt = "0.17.1"
 chrono = {version = "0.4.41", features = ["serde"]}
 futures = "0.3.31"
 indexmap = "2.11.0"
