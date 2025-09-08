@@ -1,6 +1,6 @@
 use chrono::{DateTime, NaiveDateTime, Utc};
+use domner_tech_sql_client::pool_manager::DbRow;
 use serde::{Deserialize, Serialize};
-use tiberius::Row;
 
 use crate::features::roles::roles_dto::{CreateRoleReqDto, RoleDto, UpdateRoleReqDto, UserRoleDto};
 
@@ -27,17 +27,17 @@ pub struct UserRolesEntity {
   pub is_in_role: bool,
 }
 
-impl From<&Row> for RoleEntity {
-  fn from(row: &Row) -> Self {
+impl From<&DbRow<'_>> for RoleEntity {
+  fn from(row: &DbRow) -> Self {
     let naive_created_at: NaiveDateTime = row
-      .try_get::<NaiveDateTime, &str>("created_at")
+      .get_mssql::<NaiveDateTime>("created_at")
       .expect("Failed to get created_at")
       .unwrap_or_default();
     let created_at: DateTime<Utc> =
       DateTime::<Utc>::from_naive_utc_and_offset(naive_created_at, Utc);
 
     let naive_updated_at: NaiveDateTime = row
-      .try_get::<NaiveDateTime, &str>("updated_at")
+      .get_mssql::<NaiveDateTime>("updated_at")
       .expect("Failed to get updated_at")
       .unwrap_or_default();
     let updated_at: DateTime<Utc> =
@@ -45,16 +45,16 @@ impl From<&Row> for RoleEntity {
 
     Self {
       id: row
-        .try_get::<i32, &str>("id")
+        .get_mssql::<i32>("id")
         .expect("Failed to get id")
         .unwrap_or_default(), // fallback if null
       name: row
-        .try_get::<&str, &str>("name")
+        .get_mssql::<&str>("name")
         .expect("Failed to get name")
         .unwrap_or_default()
         .to_string(),
       description: row
-        .try_get::<&str, &str>("description")
+        .get_mssql::<&str>("description")
         .unwrap_or_default()
         .map(|s| s.to_string()),
       created_at,
@@ -75,19 +75,19 @@ impl From<RoleDto> for RoleEntity {
   }
 }
 
-impl From<&Row> for UserRoleEntity {
-  fn from(value: &Row) -> Self {
+impl From<&DbRow<'_>> for UserRoleEntity {
+  fn from(value: &DbRow) -> Self {
     Self {
       id: value
-        .try_get::<i32, &str>("id")
+        .get_mssql::<i32>("id")
         .expect("Failed to get id")
         .unwrap_or_default(),
       user_id: value
-        .try_get::<i32, &str>("user_id")
+        .get_mssql::<i32>("user_id")
         .expect("Failed to get id")
         .unwrap_or_default(),
       role_id: value
-        .try_get::<i32, &str>("role_id")
+        .get_mssql::<i32>("role_id")
         .expect("Failed to get id")
         .unwrap_or_default(),
     }
@@ -128,20 +128,20 @@ impl From<UpdateRoleReqDto> for RoleEntity {
   }
 }
 
-impl From<&Row> for UserRolesEntity {
-  fn from(row: &Row) -> Self {
+impl From<&DbRow<'_>> for UserRolesEntity {
+  fn from(row: &DbRow) -> Self {
     Self {
       role_id: row
-        .try_get::<i32, &str>("role_id")
+        .get_mssql::<i32>("role_id")
         .expect("Failed to get role_id")
         .unwrap_or_default(), // fallback if null
       role_name: row
-        .try_get::<&str, &str>("role_name")
+        .get_mssql::<&str>("role_name")
         .expect("Failed to get role_name")
         .unwrap_or_default()
         .to_string(),
       is_in_role: row
-        .try_get::<bool, &str>("is_in_role")
+        .get_mssql::<bool>("is_in_role")
         .expect("Failed to get is_in_role")
         .unwrap_or_default(),
     }

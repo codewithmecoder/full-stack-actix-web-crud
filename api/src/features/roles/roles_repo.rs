@@ -1,14 +1,10 @@
 use crate::{
   app_state::AppState,
   features::roles::roles_entity::{RoleEntity, UserRoleEntity, UserRolesEntity},
-  repos::{
-    sql_pool_manager::PooledClient,
-    sql_repo::{CommandType, SqlRepo},
-  },
 };
 
 use anyhow::Result;
-use tiberius::ToSql;
+use domner_tech_sql_client::{CommandType, SqlRepo, UnifiedToSql, pool_manager::PooledClient};
 
 pub struct RoleRepo<'a> {
   pub app_state: &'a AppState,
@@ -35,7 +31,7 @@ impl<'a> RoleRepo<'a> {
     let mut client_pool = self.get_client().await;
 
     let description = role.description.clone().unwrap_or_default();
-    let params: Vec<&dyn ToSql> = vec![&role.name, &description];
+    let params: Vec<&dyn UnifiedToSql> = vec![&role.name, &description];
     let result = SqlRepo::execute_command_none_query(
       &mut client_pool,
       "[dbo].[create_role]",
@@ -50,7 +46,7 @@ impl<'a> RoleRepo<'a> {
     let mut client_pool = self.get_client().await;
 
     let description = role.description.clone().unwrap_or_default();
-    let params: Vec<&dyn ToSql> = vec![&role.id, &role.name, &description];
+    let params: Vec<&dyn UnifiedToSql> = vec![&role.id, &role.name, &description];
     let result = SqlRepo::execute_command_none_query(
       &mut client_pool,
       "[dbo].[update_role]",

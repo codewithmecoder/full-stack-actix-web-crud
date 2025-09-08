@@ -4,15 +4,11 @@ use crate::{
     user_dto::{UserDto, UserRegisterReqDto},
     user_entity::User,
   },
-  repos::{
-    sql_pool_manager::PooledClient,
-    sql_repo::{CommandType, SqlRepo},
-  },
   utils::password_hashing::PasswordHashing,
 };
 
 use anyhow::Result;
-use tiberius::ToSql;
+use domner_tech_sql_client::{CommandType, SqlRepo, UnifiedToSql, pool_manager::PooledClient};
 
 pub struct UserRepo<'a> {
   pub app_state: &'a AppState,
@@ -46,7 +42,7 @@ impl<'a> UserRepo<'a> {
     let hashed_password = PasswordHashing::hash_password(&user.password)
       .map_err(|e| anyhow::anyhow!("Failed to hash password: {}", e))?;
 
-    let params: Vec<&dyn ToSql> = vec![
+    let params: Vec<&dyn UnifiedToSql> = vec![
       &user.name,
       &user.user_name,
       &user.email,
@@ -74,7 +70,7 @@ impl<'a> UserRepo<'a> {
       "[dbo].[select_user]",
       &[&id],
       CommandType::StoreProcedure,
-      |row| User::from_row(row),
+      |row| User::from(row),
     )
     .await?;
     Ok(user)
@@ -88,7 +84,7 @@ impl<'a> UserRepo<'a> {
       "[dbo].[select_user_by_user_name]",
       &[&username],
       CommandType::StoreProcedure,
-      |row| User::from_row(row),
+      |row| User::from(row),
     )
     .await?;
     Ok(user)
@@ -102,7 +98,7 @@ impl<'a> UserRepo<'a> {
       "[dbo].[select_users]",
       &[],
       CommandType::StoreProcedure,
-      |row| User::from_row(row),
+      |row| User::from(row),
     )
     .await?;
     Ok(users)
@@ -112,7 +108,7 @@ impl<'a> UserRepo<'a> {
     let mut client_pool = self.get_client().await;
 
     let role = user.role.to_str();
-    let params: Vec<&dyn ToSql> = vec![&user.name, &user.user_name, &user.email, &role];
+    let params: Vec<&dyn UnifiedToSql> = vec![&user.name, &user.user_name, &user.email, &role];
 
     let result = SqlRepo::execute_command_none_query(
       &mut client_pool,

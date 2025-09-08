@@ -1,6 +1,7 @@
-use crate::{app_settings::AppSetting, repos::sql_pool_manager::DbManager};
+use crate::app_settings::AppSetting;
 
 use anyhow::Result;
+use domner_tech_sql_client::pool_manager::DbManager;
 
 #[derive(Clone)]
 pub struct AppState {
