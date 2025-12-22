@@ -13,7 +13,7 @@ argon2 = "0.5.3"
 chrono = { version = "0.4.42", features = ["serde"] }
 domner_tech_sql_client = { version = "0.1.1", features = ["mssql"] }
 futures = "0.3.31"
-indexmap = "2.11.0"
+indexmap = "2.12.1"
 jsonwebtoken = "10.2.0"
 lazy_static = "1.5.0"
 log = "0.4.28"
