@@ -26,4 +26,4 @@ utoipa = {version = "5.4.0", features = ["actix_extras", "chrono"]}
 utoipa-rapidoc = { version = "6.0.0", features = ["actix-web"] }
 utoipa-redoc = { version = "6.0.0", features = ["actix-web"] }
 utoipa-swagger-ui = { version = "9.0.2", features = ["actix-web"] }
-uuid = {version = "1.18.1", features = ["v4"]}
+uuid = {version = "1.19.0", features = ["v4"]}
