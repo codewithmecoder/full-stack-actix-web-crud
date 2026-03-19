@@ -11,7 +11,7 @@ actix-web = "4.13.0"
 anyhow = "1.0.102"
 argon2 = "0.5.3"
 chrono = { version = "0.4.44", features = ["serde"] }
-domner_tech_sql_client = { version = "0.1.6", features = ["mssql"] }
+domner_tech_sql_client = { version = "0.2.2", features = ["mssql"] }
 futures = "0.3.32"
 indexmap = "2.13.0"
 jsonwebtoken = "10.3.0"
