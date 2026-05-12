@@ -14,7 +14,7 @@ chrono = { version = "0.4.44", features = ["serde"] }
 domner_tech_sql_client = { version = "0.2.2", features = ["mssql"] }
 futures = "0.3.32"
 indexmap = "2.14.0"
-jsonwebtoken = "10.3.0"
+jsonwebtoken = "10.4.0"
 lazy_static = "1.5.0"
 log = "0.4.29"
 openssl-probe = "0.2.1"
